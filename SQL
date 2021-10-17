@@ -1,0 +1,427 @@
+-- CREATE TABLE -- 
+
+CREATE TABLE Staffs(
+	StaffID		     CHAR(5)	 PRIMARY KEY 
+		CHECK(StaffID LIKE'ST[0-9][0-9][0-9]'),
+	StaffName	     VARCHAR(30) NOT NULL,
+	StaffGender	     VARCHAR(10) NOT NULL
+		CHECK(StaffGender IN('Male','Female')),
+	DateOfBirth	     DATE		 NOT NULL,
+	StaffAddress	 VARCHAR(50) NOT NULL,
+	StaffEmail		 VARCHAR(30) NOT NULL 
+		CHECK (StaffEmail LIKE '%@%') ,
+	StaffPhoneNumber NUMERIC	 NOT NULL,
+	StaffSalary		 INT		 NOT NULL
+)
+
+CREATE TABLE Distributor(
+	DistributorID		   CHAR(5)	   PRIMARY KEY 
+		CHECK(DistributorID LIKE 'DI[0-9][0-9][0-9]'),
+	DistributorName		   VARCHAR(30) NOT NULL,
+	DistributorAddress     VARCHAR(50) NOT NULL,
+	CompanyName			   VARCHAR(30) NOT NULL 
+		CHECK(CompanyName LIKE '%Company'),
+	CompanyLocation		   VARCHAR(50) NOT NULL,
+	DistributorEmail	   VARCHAR(50) NOT NULL 
+		CHECK (DistributorEmail LIKE '%@%'),
+	DistributorPhoneNumber NUMERIC	   NOT NULL
+)
+
+CREATE TABLE Factory(
+	FactoryID				CHAR(5)		PRIMARY KEY 
+		CHECK(FactoryID LIKE 'FC[0-9][0-9][0-9]'),
+	FactoryName				VARCHAR(50) NOT NULL 
+		CHECK(LEN(FactoryName) BETWEEN 10 AND 50),
+	FactoryAddress			VARCHAR(30) NOT NULL 
+		CHECK(FactoryAddress LIKE'%Street'),
+	FactorySupervisor		VARCHAR(30) NOT NULL,
+	FactoryRating			NUMERIC		NOT NULL 
+		CHECK(FactoryRating BETWEEN 0 AND 5),
+	FactoryStartDate		DATE		NOT NULL
+)
+
+CREATE TABLE Category(
+	CategoryID				CHAR(5)		PRIMARY KEY 
+		CHECK(CategoryID like'CT[0-9][0-9][0-9]'),
+	CategoryName			VARCHAR(30) NOT NULL
+)
+
+CREATE TABLE Items (
+	ItemID					CHAR(5)		 PRIMARY KEY 
+		CHECK(ItemID like'IT[0-9][0-9][0-9]'),
+	CategoryID				CHAR(5)		 FOREIGN KEY 
+		REFERENCES Category,
+	ItemName				VARCHAR(50)  NOT NULL,
+	SupplyPrice				INT			 NOT NULL,
+	DistributePrice			INT			 NOT NULL,
+	Stock					INT			 NOT NULL,
+	Material				VARCHAR(45)  NOT NULL,
+	ItemDescription			VARCHAR(100) DEFAULT 'No Description'
+)
+
+CREATE TABLE HeaderSupplyTransaction(
+	SupplyTransactionID CHAR(5) PRIMARY KEY 
+		CHECK(SupplyTransactionID LIKE'SU[0-9][0-9][0-9]'),
+	FactoryID			CHAR(5) NOT NULL FOREIGN KEY 
+		REFERENCES Factory
+		ON UPDATE CASCADE 
+		ON DELETE CASCADE,
+	StaffID				CHAR(5) NOT NULL FOREIGN KEY 
+		REFERENCES Staffs
+		ON UPDATE CASCADE 
+		ON DELETE CASCADE,
+	TransactionDate		DATE	NOT NULL
+)
+
+CREATE TABLE HeaderDistributeTransaction(
+	DistributeTransactionID CHAR(5) PRIMARY KEY 
+		CHECK (DistributeTransactionID LIKE 'DT[0-9][0-9][0-9]'),
+	DistributorID			CHAR(5) FOREIGN KEY 
+		REFERENCES Distributor
+		ON UPDATE CASCADE 
+		ON DELETE CASCADE,
+	StaffID					CHAR(5) FOREIGN KEY 
+		REFERENCES Staffs
+		ON UPDATE CASCADE 
+		ON DELETE CASCADE,
+	DistributorCity			VARCHAR(30) NOT NULL,
+	TransactionDate			DATE NOT NULL
+)
+
+CREATE TABLE DetailSupplyTransaction(
+	SupplyTransactionID CHAR(5) FOREIGN KEY (SupplyTransactionID)
+		REFERENCES HeaderSupplyTransaction
+		ON UPDATE CASCADE 
+		ON DELETE CASCADE,
+	ItemID				CHAR(5) FOREIGN KEY 
+		REFERENCES Items
+		ON UPDATE CASCADE 
+		ON DELETE CASCADE,
+	QuantityPurchased	INT NOT NULL
+	PRIMARY KEY (SupplyTransactionID , ItemID) 
+)
+
+CREATE TABLE DetailDistributeTransaction(
+	DistributeTransactionID	CHAR(5) 
+		FOREIGN KEY(DistributeTransactionID) 
+		REFERENCES HeaderDistributeTransaction
+		ON UPDATE CASCADE 
+		ON DELETE CASCADE,
+	ItemID				    CHAR(5) FOREIGN KEY (ItemID)
+		REFERENCES Items
+		ON UPDATE CASCADE 
+		ON DELETE CASCADE,
+	QuatityDistributed		INT NOT NULL
+	PRIMARY KEY (DistributeTransactionID , ItemID)
+)
+
+-- DROP TABLE -- 
+DROP TABLE Staffs
+
+DROP TABLE Items
+
+DROP TABLE Distributor
+
+DROP TABLE Category
+
+DROP TABLE Factory
+
+DROP TABLE HeaderDistributeTransaction
+
+DROP TABLE DetailDistributeTransaction
+
+DROP TABLE HeaderSupplyTransaction
+
+DROP TABLE DetailSupplyTransaction
+
+-- INSERT INTO VALUE -- 
+
+-- Master Table --
+	
+	INSERT INTO Staffs
+		VALUES ('ST001' , 'Gisella Tjahyadi' , 'Female', '1995/10/10', 'Kelapa Elok Timur Street IV BO 1 nomor 4', 'GisellaTjahyadi@gmail.com', '081911872726', 3500000), 
+			   ('ST002' , 'Rosalina'         , 'Female', '1996/09/09', 'Gading Utara Street III LK 11 nomor 5'   , 'Rosalina@yahoo.co.id'     , '081869358236', 3750000),
+			   ('ST003' , 'Meliana'          , 'Female', '1987/12/06', 'Kopyor Barat Street IV BP 11 nomor 14'   , 'Meliana@gmail.com'        , '081291009247', 4800000),
+			   ('ST004' , 'Lina Mulia'       , 'Female', '1989/11/07', 'Janur Asri Street VII SQ 2 Nomor 7'      , 'LinaMulia@yahoo.co.id'    , '081806046644', 3600000),
+			   ('ST005' , 'Anthony Stevents' , 'Male'  , '1997/01/28', 'Sunter Barat Street III SP 1 Nomor 8'    , 'AnthonySteve@gmail.com'   , '087882615243', 4000000),
+			   ('ST006' , 'Stevent'          , 'Male'  , '1988/05/05', 'Janur Elok Barat Street KP 2 Nomor 9'    , 'Stevent@gmail.com'        , '089782736476', 4900000),
+			   ('ST007' , 'Randy Davlin'     , 'Male'  , '1996/06/12', 'Gading Arcadia Street VI GO 12 Nomor 10' , 'RandyDavlin@yahoo.co.id'  , '081937649772', 3650000),
+			   ('ST008' , 'Leonardo Dylan'   , 'Male'  , '1991/04/20', 'Mediterania Street X OP 16 Nomor 22'     , 'LeonardoDylan@gmailcom'   , '089928374274', 3850000),
+			   ('ST009' , 'Rudy Pratama'     , 'Male'  , '1990/03/21', 'Villa Permata Street I PK 12 Nomor 23'   , 'RudyPratama@gmail.com'    , '087827637462', 4500000),
+			   ('ST010' , 'Sellina'          , 'Female', '1995/02/14', 'Simfoni Street II MK 4 Nomor 32'         , 'Sellina@gmail.com'        , '081538477563', 3900000);
+	
+
+	INSERT INTO Distributor
+		 Values('DI001' ,'Evelin'          ,'Kedoya Raya Street no 91'       ,'Jaya Company'   ,'West Jakarta'  ,'Evelin@gmail.com'         ,'081311770871'),
+		       ('DI002' ,'Jenancy'         ,'Bandengan Street no 12'         ,'Puro Company'   ,'North Jakarta' ,'Jenancy@gmail.com'        ,'089277880923'),
+		       ('DI003' ,'Andere'          ,'Muara Kapuk Street no 9E'       ,'Satu Company'   ,'North Jakarta' ,'Andere@gmail.com'         ,'089190458943'),
+		       ('DI004' ,'Gabriella'       ,'Kedaung Kali Angke Street no 30','Djami Company'  ,'West Jakarta'  ,'Gabriella@gmail.com'      ,'081312567890'),
+		       ('DI005' ,'Ecy'             ,'Jelambar Utara Street no 28'    ,'Sancake Company','West Jakarta'  ,'Chellsy@gmail.com'        ,'081344552123'),
+		       ('DI006' ,'Ivana Iris'      ,'Muara Karang Street no 44'      ,'Belawan Company','North Jakarta' ,'Ivana.Iris@yahoo.com'     ,'089012903485'),
+		       ('DI007' ,'Meliana Lina'    ,'Muara Angke Street no 90'       ,'Janji Company'  ,'North Jakarta' ,'MelianaLina@yahoo.com'    ,'083123765019'),
+		       ('DI008' ,'Yohana Hadi'     ,'Jelambar Barat Street no 30'    ,'Hadi Company'   ,'West Jakarta'  ,'YohanaHadi10@gmail.com'   ,'089271225671'),
+		       ('DI009' ,'Cindy Dayani'    ,'Duta Harapan Indah Street no 35','David Company'  ,'North Jakarta' ,'Cindydayani@gmail.com'    ,'083156749022'),
+		       ('DI010' ,'Angelyn Dominic' ,'Kedoya Utara Street no 12'      ,'Dominic Company','West Jakarta'  ,'Angelyn.Dominic@gmail.com','082111902696');
+
+
+	 INSERT INTO Factory
+		 Values('FC001','PT.Pertamina'                 ,'Cawang Street'    ,'Caristheo' , 4.6  ,'2003/10/12'),
+			   ('FC002','Airfast Indonesia'            ,'Kupang Street'    ,'kusomo'    , 4.5  ,'2003/09/14'),
+			   ('FC003','Angkasa Pura'                 ,'Sudirman Street'  ,'Patrick'   , 4.7  ,'2005/07/28'),
+			   ('FC004','Astra International'          ,'Kota Street'      ,'Koesman'   , 4.2  ,'2012/08/26'),
+			   ('FC005','Djarum Indonesia'              ,'Kopi Street'      ,'Jesslyn'   , 4.7  ,'2010/07/15'),
+			   ('FC006','Gunung Agung'                 ,'Teluk Street'     ,'Naftalia'  , 4.5  ,'2014/05/28'),
+			   ('FC007','Indofood Indonesia'           ,'Gabus Street'     ,'Larissa'   , 4.8  ,'2006/02/11'),
+			   ('FC008','Lippo Group'                  ,'Bandengan Street' ,'Perdana'   , 4.9  ,'2020/04/10'),
+			   ('FC009','Pabrik Kertas Indonesia'      ,'Gading Street'    ,'Jonathan'  , 4.5  ,'2016/12/03'),
+			   ('FC010','Phillip Securities Indonesia' ,'Tanggerang Street','Caristhea' , 4.9  ,'2015/11/30');
+
+
+	 INSERT INTO Category
+		VALUES('CT001', 'Furniture'      ),
+			  ('CT002', 'Elektronic'     ),
+			  ('CT003', 'Food and Drinks'),
+			  ('CT004', 'Fashion'        ),
+			  ('CT005', 'Gadget'         ),
+			  ('CT006', 'Gaming'         ),
+			  ('CT007', 'Beauty'         ),
+			  ('CT008', 'Healty'         ),
+			  ('CT009', 'Automotive'     ),
+			  ('CT010', 'Stationery'     );
+
+
+	INSERT INTO Items
+		VALUES ('IT001' , 'CT009','Dashboard Lamp   '                 ,'70000' ,'100000', 80 , 'LED Lamp'                                     , 'Length 30 cm with 18 pcs LED'),
+			   ('IT002' , 'CT001','Foldable Table   '                 ,'145000','190000', 90 , 'Hardwood partical board'                      , 'Motif: Sonoma Oak'           ),
+			   ('IT003' , 'CT003','Samyang Carbonara'                 ,'12000' ,'19000' , 100, 'Food'                                         , 'Expired date 2021'           ),
+			   ('IT004' , 'CT004','Overall Jeans    '                 ,'80000' ,'125000', 110, 'Jeans'                                        , 'All size'                    ),
+			   ('IT005' , 'CT007','Animal Sheet Mask'                 ,'9000'  ,'15000' , 125, 'Sheet Mask'                                   , 'Expired Date January 2022'   ),
+			   ('IT006' , 'CT005','Case IPAD Auto Lock Flip Cover'    ,'65000' ,'105000', 95 , 'Jelly and Magnetically aligns with the device', DEFAULT                       ),
+			   ('IT007' , 'CT002','JBL Portable Speaker'              ,'800000','960000', 35 , 'Waterproof Sound System'                      , '12 hours playtime'           ),
+			   ('IT008' , 'CT010','Pilot Frixion Pen'                 ,'14000' ,'18000' , 155, 'Eraseable Ink'                                , DEFAULT                       ),
+			   ('IT009' , 'CT006','PS 4 Game Resident Evil 6'         ,'275000','350000', 88 , 'CD'                                           , DEFAULT                       ),
+			   ('IT010' , 'CT008','Imboost'                           ,'27500' ,'40000' , 95 , 'Tablet/Pills'                                 , '1 Strip 10 Tablets'          );
+	
+
+-- Transaction --
+	 INSERT INTO HeaderSupplyTransaction
+		VALUES ('SU001','FC001','ST001','2018/01/01'),
+			   ('SU002','FC002','ST002','2018/01/20'),
+			   ('SU003','FC003','ST003','2019/02/12'),
+			   ('SU004','FC004','ST004','2020/02/20'),
+			   ('SU005','FC005','ST005','2020/03/01'),
+               ('SU006','FC006','ST006','2020/03/10'),
+		       ('SU007','FC007','ST007','2020/03/18'),
+		       ('SU008','FC008','ST008','2020/03/20'),
+		       ('SU009','FC009','ST009','2020/03/25'),
+		       ('SU010','FC010','ST010','2020/04/02'),
+		       ('SU011','FC003','ST002','2020/04/08'),
+		       ('SU012','FC005','ST009','2020/04/12'),
+		       ('SU013','FC002','ST006','2020/04/18'),
+		       ('SU014','FC003','ST004','2020/04/22'),
+		       ('SU015','FC002','ST006','2020/05/16');
+
+	INSERT INTO HeaderDistributeTransaction
+		VALUES ('DT001','DI001', 'ST010', 'West Jakarta'  , '2020/02/12'),
+			   ('DT002','DI003', 'ST008', 'North Jakarta' , '2020/02/14'),
+			   ('DT003','DI005', 'ST006', 'West Jakarta'  , '2020/03/24'),
+			   ('DT004','DI007', 'ST004', 'North Jakarta' , '2020/03/25'),
+			   ('DT005','DI009', 'ST002', 'North Jakarta' , '2020/04/12'),
+			   ('DT006','DI010', 'ST001', 'West Jakarta'  , '2020/05/02'),
+			   ('DT007','DI008', 'ST003', 'West Jakarta'  , '2020/06/23'),
+			   ('DT008','DI006', 'ST005', 'North Jakarta' , '2020/07/31'),
+			   ('DT009','DI004', 'ST007', 'West Jakarta'  , '2020/08/22'),
+			   ('DT010','DI003', 'ST008', 'North Jakarta' , '2020/08/23'),
+			   ('DT011','DI002', 'ST009', 'North Jakarta' , '2020/09/21'),
+			   ('DT012','DI001', 'ST002', 'West Jakarta'  , '2020/10/06'),
+			   ('DT013','DI007', 'ST003', 'North Jakarta' , '2020/11/11'),
+			   ('DT014','DI009', 'ST001', 'North Jakarta' , '2020/12/12'),
+			   ('DT015','DI002', 'ST004', 'North Jakarta' , '2020/12/20');
+
+
+-- Transaction Detail -- 
+
+	 INSERT INTO DetailSupplyTransaction
+		VALUES  ('SU001','IT001',50),
+			    ('SU001','IT003',50),
+			    ('SU002','IT002',50),
+			    ('SU003','IT004',30),
+			    ('SU003','IT007',30),
+			    ('SU004','IT003',45),
+			    ('SU004','IT008',35),
+			    ('SU005','IT006',40),
+			    ('SU005','IT007',45),
+			    ('SU005','IT008',50),
+			    ('SU006','IT009',34),
+			    ('SU007','IT010',50),
+			    ('SU007','IT002',30),
+			    ('SU008','IT005',30),
+			    ('SU008','IT006',30),
+			    ('SU009','IT009',32),
+			    ('SU009','IT010',50),
+			    ('SU009','IT007',42),
+			    ('SU010','IT001',36),
+			    ('SU011','IT006',33),
+			    ('SU011','IT008',50),
+			    ('SU012','IT009',45),
+			    ('SU013','IT007',30),
+			    ('SU014','IT010',50),
+			    ('SU015','IT001',30);
+
+	INSERT INTO DetailDistributeTransaction
+		VALUES ('DT001', 'IT001' , 20),
+			   ('DT001', 'IT003' , 35),
+			   ('DT002', 'IT005' , 15),
+			   ('DT002', 'IT007' , 16),
+			   ('DT003', 'IT001' , 20),
+			   ('DT004', 'IT004' , 15),
+			   ('DT004', 'IT005' , 25),
+			   ('DT005', 'IT006' , 32),
+			   ('DT005', 'IT008' , 36),
+			   ('DT006', 'IT002' , 12),
+			   ('DT007', 'IT010' , 50),
+			   ('DT008', 'IT009' , 36),
+			   ('DT008', 'IT008' , 48),
+			   ('DT009', 'IT002' , 12),
+			   ('DT010', 'IT001' , 20),
+			   ('DT010', 'IT005' , 10),
+			   ('DT011', 'IT004' , 18),
+			   ('DT011', 'IT010' , 50),
+			   ('DT012', 'IT004' , 24),
+			   ('DT012', 'IT009' , 12),
+			   ('DT013', 'IT009' , 30),
+			   ('DT013', 'IT002' , 25),
+			   ('DT014', 'IT001' , 20),
+			   ('DT015', 'IT003' , 30),
+			   ('DT015', 'IT008' , 60);
+-- QUERY MENJAWAB 10 SOAL -- 
+
+-- Nomor 1 -- 
+	SELECT DISTINCT ItemID,
+					[Total Quantity] = SUM(QuantityPurchased)
+			FROM DetailSupplyTransaction dst  
+				 JOIN HeaderSupplyTransaction hst 
+					ON dst.SupplyTransactionID = hst.SupplyTransactionID
+				 JOIN Factory fc 
+					ON hst.FactoryID = fc.FactoryID
+			     WHERE DATENAME(Weekday,hst.TransactionDate) LIKE 'Monday' AND fc.FactoryName LIKE '% %'
+			GROUP BY ItemID
+
+-- Nomor 2 -- 
+	SELECT [Item ID] = STUFF(it.ItemID,3,2,''),
+			ct.CategoryName, 
+		   [Total Income] = SUM(it.Stock*it.DistributePrice) 
+		FROM Items	it 
+		JOIN Category ct
+			ON it.CategoryID = ct.CategoryID
+		WHERE Stock >20 AND it.CategoryID = 'CT002'
+		GROUP BY CategoryName, ItemID
+
+-- Nomor 3 
+	SELECT [SupplyID] =	FactoryID,
+		   [Supply Date] = CONVERT(VARCHAR, TransactionDate, 107),
+		   [Total Item Purchased] = SUM(QuantityPurchased),
+		   [Total Expenses] = SUM (QuantityPurchased*it.SupplyPrice)
+		FROM HeaderSupplyTransaction hst 
+		JOIN DetailSupplyTransaction dst 
+			ON hst.SupplyTransactionID = dst.SupplyTransactionID
+		JOIN Items it 
+			ON dst.ItemID = it.ItemID
+		WHERE YEAR(hst.TransactionDate)%2 = 0 AND it.ItemName LIKE '%A%' OR it.ItemName LIKE '%a%'
+		GROUP BY FactoryID,TransactionDate
+
+-- Nomor 4 
+	SELECT [StaffId] = hst.StaffID,
+		   [Staff First Name] = SUBSTRING(StaffName,1,1), 
+		   StaffSalary = MIN(StaffSalary),
+		   [Distribute Day] = DATENAME(WEEKDAY, hst.TransactionDate),
+		   [Item Distributed] = SUM(QuantityPurchased)
+		FROM Staffs st
+		JOIN HeaderSupplyTransaction hst 
+			ON st.StaffID = hst.StaffID
+		JOIN DetailSupplyTransaction dst
+			ON hst.SupplyTransactionID = dst.SupplyTransactionID 
+		WHERE dst.QuantityPurchased > 40 	
+		GROUP BY hst.StaffID, TransactionDate,StaffName,StaffSalary
+
+-- Nomor 5 
+	SELECT [SupplyId] = hst.FactoryID,
+		   FactoryName,
+		   StaffName,
+		   [Supply Date] = TransactionDate
+		FROM HeaderSupplyTransaction hst
+		JOIN Staffs st 
+			ON hst.StaffID = st.StaffID
+		JOIN Factory f
+			ON hst.FactoryID = f.FactoryID,
+				(SELECT [AVG] = AVG (FactoryRating) 
+					FROM Factory) as a
+		WHERE YEAR(DateOfBirth) BETWEEN 1990 AND 2000 AND FactoryRating >= a.[AVG]
+
+-- Nomor 6  
+	SELECT CategoryName, 
+		   [Total Quantity] = SUM(QuatityDistributed)
+		FROM Category ct
+		JOIN Items it 
+			ON ct.CategoryID = it.CategoryID
+		JOIN DetailDistributeTransaction ddt
+			ON ddt.ItemID = it.itemID,
+			(SELECT a= STUFF(DistributeTransactionID,1,3,'')%2
+				FROM DetailDistributeTransaction 
+				GROUP BY DistributeTransactionID) as x
+		WHERE x.a = 0 
+		GROUP BY CategoryName, DistributeTransactionID
+        HAVING SUM(QuatityDistributed)>= 50
+		
+-- Nomor 7 Total transactionny
+	SELECT [StaffId] = StaffID,
+		   [Staff Last Name]= REVERSE(LEFT(REVERSE(StaffName), CHARINDEX(' ', REVERSE(StaffName))-1)),
+		   [Total Transaction]= SUM(y.[Total Distribute] + z.[Total Supply])
+		FROM Staffs ,
+				(SELECT [AVG]  = AVG(StaffSalary) 
+					FROM Staffs)as x,
+				(SELECT [Total Distribute] = COUNT(DistributeTransactionID)
+					FROM HeaderDistributeTransaction) as y,
+				(SELECT [Total Supply] = COUNT (SupplyTransactionID) 
+					FROM HeaderSupplyTransaction) as z
+		WHERE StaffSalary > x.[AVG] AND StaffName LIKE '% %'
+		GROUP BY StaffID,StaffName
+		
+-- Nomor 8 
+	SELECT [DistributeID] = hdt.DistributorID,
+		   [Distribute City] = CompanyLocation,
+		   [Distribute Date] = CONVERT(VARCHAR, TransactionDate, 107),
+		   [Total Quantity] = SUM(QuatityDistributed)
+		FROM Distributor d
+		JOIN HeaderDistributeTransaction hdt
+			ON hdt.DistributorID = d.DistributorID
+		JOIN DetailDistributeTransaction ddt
+			ON hdt.DistributeTransactionID = ddt.DistributeTransactionID
+		JOIN Items it
+			ON ddt.ItemID = it.ItemID,
+			(SELECT [AVG Distribution Price] = AVG(DistributePrice) 
+				FROM Items)as x
+		WHERE StaffID IN ('ST001' , 'ST002','ST003', 'ST004', 'ST005') AND 
+					DistributePrice < x.[AVG Distribution Price] AND 
+					Stock BETWEEN 100 AND 1000
+		GROUP BY hdt.DistributorID, CompanyLocation, TransactionDate
+
+-- Nomor 9 
+	CREATE VIEW ViewGoodCompanySupplies AS 
+		SELECT [FactoryId] = hst.FactoryID,
+			   FactoryName,
+			   [Total Quantity] = SUM(QuantityPurchased)
+		FROM Factory f
+		JOIN HeaderSupplyTransaction hst
+			ON hst.FactoryID = f.FactoryID
+		JOIN DetailSupplyTransaction dst
+			ON hst.SupplyTransactionID = dst.SupplyTransactionID,
+			(SELECT [FRate] = AVG(FactoryRating) FROM Factory) as x
+		WHERE YEAR(TransactionDate) = '2018' AND FactoryRating > x.[FRate]
+		GROUP BY hst.FactoryID , FactoryName
+
+	SELECT * FROM ViewGoodCompanySupplies
+
+-- Nomor 10 
+	CREATE VIEW WeekendDistributeView AS 
+		SELECT
