@@ -7,8 +7,8 @@ CREATE TABLE Staffs(
 	StaffGender	     VARCHAR(10) NOT NULL
 		CHECK(StaffGender IN('Male','Female')),
 	DateOfBirth	     DATE		 NOT NULL,
-	StaffAddress	 VARCHAR(50) NOT NULL,
-	StaffEmail		 VARCHAR(30) NOT NULL 
+	StaffAddress	     VARCHAR(50) NOT NULL,
+	StaffEmail	     VARCHAR(30) NOT NULL 
 		CHECK (StaffEmail LIKE '%@%') ,
 	StaffPhoneNumber NUMERIC	 NOT NULL,
 	StaffSalary		 INT		 NOT NULL
@@ -297,6 +297,7 @@ DROP TABLE DetailSupplyTransaction
 -- QUERY MENJAWAB 10 SOAL -- 
 
 -- Nomor 1 -- 
+-- Display ItemId and Total Quantity (obtained from the sum of quantity) from supply transaction where the supply date is in 'Monday' and the factory name has at least 2 words.--
 	SELECT DISTINCT ItemID,
 					[Total Quantity] = SUM(QuantityPurchased)
 			FROM DetailSupplyTransaction dst  
@@ -308,6 +309,7 @@ DROP TABLE DetailSupplyTransaction
 			GROUP BY ItemID
 
 -- Nomor 2 -- 
+-- Display Item Id (Obtained from 'Item ' and the digit of ItemId without the additional zero), CategoryName, and Total Income (obtained from the sum of item distribute price times quantity of the item) for each item who has stock more than 20 and has CategoryId of 'CT002'.--
 	SELECT [Item ID] = STUFF(it.ItemID,3,2,''),
 			ct.CategoryName, 
 		   [Total Income] = SUM(it.Stock*it.DistributePrice) 
@@ -318,6 +320,7 @@ DROP TABLE DetailSupplyTransaction
 		GROUP BY CategoryName, ItemID
 
 -- Nomor 3 
+-- Display SupplyId, Supply Date(Obtained from SupplyDate in Mon dd, yyyy format), Total Item Purchased (obtained from counting the item on each supply transaction), and Total Expense (obtained from summing the total price for each transaction) where the year of the transaction is even numbered and the item name contains the letter 'a' or 'A'.--
 	SELECT [SupplyID] =	FactoryID,
 		   [Supply Date] = CONVERT(VARCHAR, TransactionDate, 107),
 		   [Total Item Purchased] = SUM(QuantityPurchased),
@@ -331,6 +334,7 @@ DROP TABLE DetailSupplyTransaction
 		GROUP BY FactoryID,TransactionDate
 
 -- Nomor 4 
+-- Display StaffId, Staff First Name (Obtained from the first word of StaffName), StaffSalary,Distribute Day (Obtained from the day name of the transaction date), and Item Distributed (Obtained from adding all quantity from the transaction done by the staff) for each distribute transaction which has staff who has the lowest salary and item that is purchased with more than 40 quantity in single purchase.--
 	SELECT [StaffId] = hst.StaffID,
 		   [Staff First Name] = SUBSTRING(StaffName,1,1), 
 		   StaffSalary = MIN(StaffSalary),
@@ -345,6 +349,7 @@ DROP TABLE DetailSupplyTransaction
 		GROUP BY hst.StaffID, TransactionDate,StaffName,StaffSalary
 
 -- Nomor 5 
+-- Display SupplyId, FactoryName, StaffName, SupplyDate for each Staff who is born in year 1990-2000 and each factory who has rating above or equal the average rating of all. (alias subquery) --
 	SELECT [SupplyId] = hst.FactoryID,
 		   FactoryName,
 		   StaffName,
@@ -359,6 +364,7 @@ DROP TABLE DetailSupplyTransaction
 		WHERE YEAR(DateOfBirth) BETWEEN 1990 AND 2000 AND FactoryRating >= a.[AVG]
 
 -- Nomor 6  
+-- Display CategoryName and Total Quantity(Obtained from Sum of Quantity for each categoryName) for the item that is purchased in every even numbered DistributeId transaction. Display only the data who has the Total Quantity value of 50 or more.(alias subquery)--
 	SELECT CategoryName, 
 		   [Total Quantity] = SUM(QuatityDistributed)
 		FROM Category ct
@@ -373,7 +379,8 @@ DROP TABLE DetailSupplyTransaction
 		GROUP BY CategoryName, DistributeTransactionID
         HAVING SUM(QuatityDistributed)>= 50
 		
--- Nomor 7 Total transactionny
+-- Nomor 7 
+-- Display StaffId, Staff Last Name(Obtained from the last word in Staff's name), and Total Transaction (obtained from total distribute and supply transaction done by the staff) who has salary higher than the average of all the staff's salary and got minimal 2 words in their name.(alias subquery)--
 	SELECT [StaffId] = StaffID,
 		   [Staff Last Name]= REVERSE(LEFT(REVERSE(StaffName), CHARINDEX(' ', REVERSE(StaffName))-1)),
 		   [Total Transaction]= SUM(y.[Total Distribute] + z.[Total Supply])
@@ -388,6 +395,7 @@ DROP TABLE DetailSupplyTransaction
 		GROUP BY StaffID,StaffName
 		
 -- Nomor 8 
+-- Display DistributeID, DistributeCity, Distribute Date (Obtained from DistributeDate in dd.mm.yyyy format), and Total Quantity(Obtained from summing all quantity from distribute transaction) for each distribute transactions which have StaffId ST001 to ST005 and only count items that have distribution price lower than the average of all items distribution price and those items stock must be between 100 and 1000. Sort the data based on the DistributeID descending.(alias subquery)--
 	SELECT [DistributeID] = hdt.DistributorID,
 		   [Distribute City] = CompanyLocation,
 		   [Distribute Date] = CONVERT(VARCHAR, TransactionDate, 107),
@@ -407,6 +415,7 @@ DROP TABLE DetailSupplyTransaction
 		GROUP BY hdt.DistributorID, CompanyLocation, TransactionDate
 
 -- Nomor 9 
+-- Create a view named ViewGoodCompanySupplies to see FactoryId, FactoryName, and Total Quantity (Obtained from the sum of quantity of each factory) for each supply that happen in 2018 and the factory rating is higher than the average factory rating.
 	CREATE VIEW ViewGoodCompanySupplies AS 
 		SELECT [FactoryId] = hst.FactoryID,
 			   FactoryName,
@@ -423,5 +432,6 @@ DROP TABLE DetailSupplyTransaction
 	SELECT * FROM ViewGoodCompanySupplies
 
 -- Nomor 10 
+-- Create a view named 'WeekendDistributeView' to see DistributorId, StaffId, Recorded Transaction (Obtained from counting each distinct distributeId) and Total Item Distributed (Obtained from the total quantity in the transaction) for each transaction which occured in weekend(both saturday and sunday) and the item id is 'IT006' to 'IT008'.
 	CREATE VIEW WeekendDistributeView AS 
 		SELECT
